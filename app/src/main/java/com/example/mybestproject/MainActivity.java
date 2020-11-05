@@ -28,7 +28,12 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation()));
         recyclerView.setAdapter(new UserInfoAdapter(userInfos));
 
-        initData();
+//        initData();
+        new Thread(() -> {
+            userInfos.addAll(UserInfoDB.getDB(this).userDao().getAll());
+            runOnUiThread(()->
+                    recyclerView.getAdapter().notifyDataSetChanged());
+        }).start();
     }
 
     private void initData() {
@@ -39,5 +44,14 @@ public class MainActivity extends AppCompatActivity {
         userInfos.add(new UserInfo("user5", "info5"));
         userInfos.add(new UserInfo("user6", "info6"));
         userInfos.add(new UserInfo("user7", "info7"));
+
+
+        new Thread(() -> {
+            for (UserInfo userInfo : userInfos){
+                UserInfoDB.getDB(this).userDao().insertUserInfo(userInfo);
+            }
+        }).start();
+
+
     }
 }
